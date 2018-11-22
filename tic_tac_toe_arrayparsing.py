@@ -1,17 +1,4 @@
-
-tst = ['.', 'o', 'x', '.', 'x', '.' ,'x', 'x', '.', 'o']
-
-def checkArrayPot(array, symbol1='', symbol2=''):
-    start, end = 0, len(array)
-    if array.count(symbol1)+array.count('.') >= 4:
-        for index, e in enumerate(array):
-            if e == symbol2:
-                if index < (len(array)-1):
-                    start = index+1
-                else:
-                    end = index
-        return array[start:end]
-    return False
+tst = ['.', 'o', '.', '.', 'x', '.', 'x', '.' ,'x', 'x', '.', 'x', 'x', 'x', '.']
 
 def editIndex(array, index, symbol=''):
     newindex, counts, count = index, {}, 0
@@ -30,9 +17,12 @@ def editIndex(array, index, symbol=''):
                 if array[i-1] == symbol and array[i+1] == symbol and e == '.':
                     counts[i] = "1"
         else:
-            if array[i-1] == symbol and e == '.':
-                newindex = i
-
+            if array[i-1] == symbol:
+                if e == '.':
+                    newindex = i
+            if e == symbol:
+                counts[i] = count + 1
+   
     compare = {}
     sorted_keys = sorted([k for k in counts.keys()])
     for i,indx in enumerate(sorted_keys):
@@ -43,7 +33,4 @@ def editIndex(array, index, symbol=''):
         newindex = max([v for v in compare.values()])
     return newindex
                 
-     
-tst2 = checkArrayPot(tst, 'x', 'o')
-print(tst2)
-print(editIndex(tst2, 0, 'x'))
+print(editIndex(tst, 0, 'x'))
