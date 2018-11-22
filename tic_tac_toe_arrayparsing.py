@@ -28,15 +28,19 @@ def editIndex(array, index, symbol=''):
                 newindex = i
             if i > 0:
                 if array[i-1] == symbol and array[i+1] == symbol and e == '.':
-                    counts[str(i)] = 1
+                    counts[i] = "1"
         else:
             if array[i-1] == symbol and e == '.':
                 newindex = i
-    
-    for key in counts.keys():
-        if type(key) == str:
-            newindex = int(key)
-    print(counts)
+
+    compare = {}
+    sorted_keys = sorted([k for k in counts.keys()])
+    for i,indx in enumerate(sorted_keys):
+        if type(counts[indx]) == str:
+            compare[indx] = counts[sorted_keys[i-1]] + 1 + counts[sorted_keys[i+1]]
+    if len(compare.keys()) > 0:
+        compare = {v: k for k,v in compare.items()}
+        newindex = max([v for v in compare.values()])
     return newindex
                 
      
