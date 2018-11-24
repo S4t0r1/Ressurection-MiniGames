@@ -16,11 +16,13 @@ def getArrayValues(*arrays, symbol=''):
         valuecount = 0
         values = []
         opn, connect = False, False
+        fullopn = True
         for i, e in enumerate(array):
             neighbors = [array[i+1]] if i==0 else [array[i-1]] if i==len(array)-1 else [array[i+1], array[i-1]]
             if opn and connect:
                 values.append(valuecount)
             if e == '.':
+                fullopn = False if fullopn else True
                 if i < len(array)-1 and array[i-1]=='.':
                     valuecount = 0
                 opn = True if any(x==symbol for x in neighbors) else False
@@ -29,14 +31,13 @@ def getArrayValues(*arrays, symbol=''):
                 connect = True
                 valuecount += 1
             else:
-                if opn and connect:
-                    values.append(valuecount)
                 opn, connect = False, False
                 valuecount = 0
         if opn and connect:
             values.append(valuecount)
         if len(values) > 0:
             valuecount = max(values)
+            arrays_values[i] = valuecount
             print("array {array} num {indx}: count = {valuecount} | {values}".format(**locals()))
         else:
             print("...not eligible")
