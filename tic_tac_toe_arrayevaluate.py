@@ -2,13 +2,27 @@
 
 #tst = ['.', 'o', '.', '.', 'x', '.', 'x', '.' ,'x', 'x', '.', 'x', 'x', 'x', '.']
 tst1 = ['.', 'o', 'x', 'x', 'x']
-tst2 = ['.', '.', 'x', 'x', '.']
+#tst2 = ['.', '.', 'x', 'x', '.']
 tst3 = ['.', 'o', 'x', 'x', '.']
-tst4 = ['.', '.', 'x', '.', '.']
+#tst4 = ['.', '.', 'x', '.', '.']
 tst5 = ['x', '.', 'x', '.', 'o', '.', '.', 'x']
 tst6 = ['x', '.', 'x', '.', '.', 'o', '.', '.', 'x']
+#tst7  = ['o', '.', 'x', 'x', '.']
 #tst7 = ['.', 'x', 'x', '.', 'x', 'o', '.', '.', 'x']
 #tst8 = ['.', 'x', 'x', '.', '.', 'x', '.', '.', 'x']
+
+def getLinearNeighbors(array, *args):
+    neighbors = []
+    for i in args:
+        for cell in [array[i+1]] if i==0 else [array[i-1]] if i==len(array)-1 else [array[i+1], array[i-1]]:
+            neighbors.append(cell)
+    return neighbors
+
+def getIndx_frSubarray(prim_data, secon_data):
+    str_, substr = ''.join(e for e in prim_data), ''.join(e for e in secon_data)
+    sindx = str_.index(substr)
+    eindx = sindx+(len(substr)-1)
+    return (sindx, eindx)
 
 def getArrayValues(*arrays, symbol=''):
     arrays_values = {}
@@ -19,7 +33,7 @@ def getArrayValues(*arrays, symbol=''):
         opn, connect = False, False
         start = None
         for i, e in enumerate(array):
-            neighbors = [array[i+1]] if i==0 else [array[i-1]] if i==len(array)-1 else [array[i+1], array[i-1]]
+            neighbors = getLinearNeighbors(array, i)
             if e == '.':
                 if i < len(array)-1 and array[i-1]=='.':
                     valuecount = 0
@@ -40,19 +54,30 @@ def getArrayValues(*arrays, symbol=''):
             for key in values_.keys():
                 if values_[key] == maxvalue:
                     arrays_values[indx] = array[key+1-maxvalue:key+1]
-            print("array {array} num {indx}: count = {maxvalue} | {values_}".format(**locals()))
-        else:
-            print("...not eligible")
-    print(arrays_values)
+
+
     maxlen = max(len(v) for v in arrays_values.values())
     for k, v in arrays_values.items():
         vstring = "".join(e for e in v)
         vlen = len(v) + (0.5 if (vstring.startswith('.') and vstring.endswith('.')) else 0)
+        if type(vlen)==float:
+            sindx, eindx = getIndx_frSubarray(arrays[k], arrays_values[k])
+            if any(x=='.' for x in getLinearNeighbors(arrays[k], sindx, eindx)):
+                vlen = vlen + 1
         maxlen = vlen if maxlen < vlen else maxlen
-        arrays_values[k] = vlen
-    candidate = arrays[list(k for k,v in arrays_values.items() if v==maxlen)[0]]
-    print(arrays_values)
-    print(candidate)
+        arrays_values[k] = vstring, vlen
+    if type(maxlen)==int:
+        for k, v in arrays_values.items():
+            vstring, vlen = v
+            if vlen==maxlen:
+                sindx, eindx = getIndx_frSubarray(arrays[k], arrays_values[k][0])
+                if any(x=='.' for x in (arrays[k][sindx-1] if sindx>0 else '', 
+                        arrays[k][eindx+1] if eindx<len(arrays[k])+1 else '')):
+                    maxlen = vlen + 1
+                    arrays_values[k] = vstring, maxlen
+    candidate = arrays[list(k for k,v in arrays_values.items() if v[1]==maxlen)[0]]
+    print('\n', candidate)
+    return candidate
 
 
-getArrayValues(tst1, tst2, tst3, tst4, tst5, tst6, symbol='x')
+getArrayValues(tst1, tst3, tst5, tst6, symbol='x')
