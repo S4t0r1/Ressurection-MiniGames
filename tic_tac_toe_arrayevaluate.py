@@ -2,14 +2,14 @@
 
 #tst = ['.', 'o', '.', '.', 'x', '.', 'x', '.' ,'x', 'x', '.', 'x', 'x', 'x', '.']
 tst1 = ['.', 'o', 'x', 'x', 'x']
-#tst2 = ['.', '.', 'x', 'x', '.']
+tst2 = ['.', '.', 'x', 'x', '.']
 tst3 = ['.', 'o', 'x', 'x', '.']
-#tst4 = ['.', '.', 'x', '.', '.']
+tst4 = ['.', '.', 'x', '.', '.']
 tst5 = ['x', '.', 'x', '.', 'o', '.', '.', 'x']
 tst6 = ['x', '.', 'x', '.', '.', 'o', '.', '.', 'x']
-#tst7  = ['o', '.', 'x', 'x', '.']
-#tst7 = ['.', 'x', 'x', '.', 'x', 'o', '.', '.', 'x']
-#tst8 = ['.', 'x', 'x', '.', '.', 'x', '.', '.', 'x']
+tst7  = ['o', '.', 'x', 'x', '.']
+tst8 = ['.', 'x', 'x', '.', 'x', 'o', '.', '.', 'x']
+tst9 = ['.', 'x', 'x', '.', '.', 'x', '.', '.', 'x']
 
 def getLinearNeighbors(array, *args):
     neighbors = []
@@ -48,22 +48,24 @@ def getArrayValues(*arrays, symbol=''):
                 valuecount = 0
             if opn and connect:
                 values_[i] = valuecount
-
         if len(values_.values()) > 0:
             maxvalue = max(values_.values())
             for key in values_.keys():
                 if values_[key] == maxvalue:
                     arrays_values[indx] = array[key+1-maxvalue:key+1]
 
-
+def getBestArray(arrayslst, arrays_values_dict, symbol1, symbol2):
     maxlen = max(len(v) for v in arrays_values.values())
     for k, v in arrays_values.items():
         vstring = "".join(e for e in v)
         vlen = len(v) + (0.5 if (vstring.startswith('.') and vstring.endswith('.')) else 0)
         if type(vlen)==float:
             sindx, eindx = getIndx_frSubarray(arrays[k], arrays_values[k])
-            if any(x=='.' for x in getLinearNeighbors(arrays[k], sindx, eindx)):
+            if any(x==('.'or symbol) for x in getLinearNeighbors(arrays[k], sindx, eindx)):
                 vlen = vlen + 1
+        if vstring.count(symbol)==3:
+            if (type(vlen)==int and vstring.count('.')>=1) or (type(vlen)==float and vstring.count('.')%2!=0):
+                vlen = 10
         maxlen = vlen if maxlen < vlen else maxlen
         arrays_values[k] = vstring, vlen
     if type(maxlen)==int:
@@ -71,13 +73,15 @@ def getArrayValues(*arrays, symbol=''):
             vstring, vlen = v
             if vlen==maxlen:
                 sindx, eindx = getIndx_frSubarray(arrays[k], arrays_values[k][0])
-                if any(x=='.' for x in (arrays[k][sindx-1] if sindx>0 else '', 
-                        arrays[k][eindx+1] if eindx<len(arrays[k])+1 else '')):
+                if any(x==('.' or symbol) for x in (arrays[k][sindx-1] if sindx>0 else '', 
+                                    arrays[k][eindx+1] if eindx<len(arrays[k])+1 else '')):
                     maxlen = vlen + 1
                     arrays_values[k] = vstring, maxlen
+    print(arrays_values)
     candidate = arrays[list(k for k,v in arrays_values.items() if v[1]==maxlen)[0]]
     print('\n', candidate)
+    print(list(k for k,v in arrays_values.items() if v[1]==maxlen))
     return candidate
 
 
-getArrayValues(tst1, tst3, tst5, tst6, symbol='x')
+getArrayValues(tst1, tst2, tst3, tst4, tst5, tst6, tst7, tst8, tst9, symbol='x')
