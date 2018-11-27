@@ -55,9 +55,11 @@ def getDiags2(matrix):
 def getAllArrays(grid_):
     arrays = [subarray for array in (getRow(grid_, all_=True), getCol(grid_, all_=True), 
                               getDiags1(grid_), getDiags2(grid_)) for subarray in array]
+    for i, a in enumerate(arrays):
+        print("{} : {} |{}".format(i, a, len(a)))
     return arrays
 
 
-grid_ = grid(5)[0]
+grid_ = grid(6)[0]
 printGrid(grid_)
 getAllArrays(grid_)
