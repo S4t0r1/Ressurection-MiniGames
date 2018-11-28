@@ -193,7 +193,7 @@ def bestArray(all_arrays, symb1='', symb2=''):
     return candidate_data
 
 
-def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx):
+def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx, indexonly=False):
     size = len(matrix)
     count = 0
     if (0 <= arrayindx <= size-1):
@@ -225,6 +225,8 @@ def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx):
                 c = movingindx + (diffr if arrayindx%2!=0 else 0)
             neighbors = "matrix[r][c-1];matrix[r-1][c-1];matrix[r-1][c];"  \
                         "matrix[r+1][c];matrix[r+1][c+1];matrix[r][c+1]"
+    if indexonly:
+        return r, c
     for cell in neighbors.strip().split(';'):
         try:
             indxs = [indx_str[:-1] for indx_str in cell.split('[') if ']' in indx_str]
@@ -235,17 +237,17 @@ def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx):
                 count += 1
         except IndexError:
             continue
-        else:
-            print("{} | {} : filled count = {}".format(r, c, count))
     return count
 
 
 def evalIndexes(matrix, arrays, arrayindx, symbol=''):
     array = arrays[arrayindx]
     newindex = 0
-    counts, count = {}, 0
-    empt_counts, emptcount = {}, 0
+    counts, empt_counts = {}, {}
+    count, emptcount = 0, 0
+    coordinates = {}
     for i, e in enumerate(array):
+        coordinates[i] = checkNeighbors(matrix, len(arrays)-1, arrayindx, len(array), i, indexonly=True)
         if i < (len(array)-1):
             if e == symbol:
                 count += 1
@@ -268,10 +270,11 @@ def evalIndexes(matrix, arrays, arrayindx, symbol=''):
                 empt_counts[i] = emptcount + 1
             elif e == symbol:
                 counts[i] = count + 1
-    return counts
+    return counts, empt_counts, coordinates
 
 
-def pickIndex(counts):
+def pickCoordinates(counts_coordinates_tuple):
+    counts, empt_counts, coordinates = counts_coordinates_tuple
     newindex = 0
     compare = {}
     sorted_keys = sorted([k for k in counts.keys()])
@@ -292,27 +295,23 @@ def pickIndex(counts):
         else:
             empt_counts = {str(k)+str(v): k for k,v in empt_counts.items() if v==max(empt_counts.values())}
             newindex = list(empt_counts.values())[0]
-    return newindex
+    return coordinates[newindex]
 
 
-def aiMovesAnalysis(matrix, symbol1, symbol2, countlimit):
+def aiMovesAnalysis(matrix, symbol1, symbol2):
     size = len(matrix)
-    
+    all_arrays = getAllArrays(matrix)
+    best_array, arrayindx, best_symb = bestArray(all_arrays, symbol1, symbol2)
+    coordinates_tuple = pickCoordinates(evalIndexes(matrix, all_arrays, arrayindx, best_symb))
+    return coordinates_tuple
 
 
-
-def ai_move(matrix, emptycount, r, c):
+def aiMove(matrix, emptycount, r, c):
     movescount = (len(matrix)**2)-emptycount
     if movescount == 1:
         return (random.choice((r+1,r-1)), random.choice((c+1,c-1))) if (r == 1 and c == 1) else (1, 1)
     else:
-        countlimit = 3 if len(matrix) > 3 else 2
-        try:
-            r, c = aiMovesAnalysis(matrix, 'x', 'o', countlimit)
-        except (ValueError, TypeError):
-            countlimit -= 1
-            r, c = aiMovesAnalysis(matrix, 'x', 'o', countlimit)
-        return r, c    
+        return aiMovesAnalysis(matrix, 'x', 'o')
 
 
 def winCheck(matrix, r, c, size, player):
@@ -333,14 +332,14 @@ def winCheck(matrix, r, c, size, player):
     return False
 
 
-def game_set(ai=False, p1='x', p2='o'):
+def gameSet(ai=False, p1='x', p2='o'):
     matrix, size = grid()
     empty_count = size**2
     printGrid(matrix)
     while True:
         if empty_count == size**2:
             player_now = p1
-        r, c =  ai_move(matrix, empty_count, r, c) if (ai and player_now==p2) else makeTurns(matrix, size, player_now)
+        r, c =  aiMove(matrix, empty_count, r, c) if (ai and player_now==p2) else makeTurns(matrix, size, player_now)
         matrix[r][c] = player_now
         empty_count -= 1
         if winCheck(matrix, r, c, size, player_now) == True:
@@ -354,7 +353,7 @@ def game():
     player1, player2 = 0, 0
     player_scores = {"x": player1, "o": player2}
     while True:
-        gameset = game_set(ai=True)
+        gameset = gameSet(ai=True)
         if gameset:
             player_scores[gameset] += 1
         print("Player1 'X': {x}\nPlayer2 'O': {o}".format(**player_scores))
