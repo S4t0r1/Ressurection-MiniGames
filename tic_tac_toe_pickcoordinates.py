@@ -2,7 +2,7 @@
 tst = ['.', 'o', '.', '.', 'x', '.', 'x', '.' ,'x', 'x', '.', 'x', 'x', 'x', '.']
 tst2 = ['.', '.', 'x', 'x', '.']
 
-def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx):
+def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx, indexonly=False):
     size = len(matrix)
     count = 0
     if (0 <= arrayindx <= size-1):
@@ -34,6 +34,8 @@ def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx):
                 c = movingindx + (diffr if arrayindx%2!=0 else 0)
             neighbors = "matrix[r][c-1];matrix[r-1][c-1];matrix[r-1][c];"  \
                         "matrix[r+1][c];matrix[r+1][c+1];matrix[r][c+1]"
+    if indexonly:
+        return r, c
     for cell in neighbors.strip().split(';'):
         try:
             indxs = [indx_str[:-1] for indx_str in cell.split('[') if ']' in indx_str]
@@ -51,9 +53,11 @@ def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx):
 def evalIndexes(matrix, arrays, arrayindx, symbol=''):
     array = arrays[arrayindx]
     newindex = 0
-    counts, count = {}, 0
-    empt_counts, emptcount = {}, 0
+    counts, empt_counts = {}, {}
+    count, emptcount = 0, 0
+    coordinates = {}
     for i, e in enumerate(array):
+        coordinates[i] = checkNeighbors(matrix, len(arrays)-1, arrayindx, len(array), i, indexonly=True)
         if i < (len(array)-1):
             if e == symbol:
                 count += 1
@@ -76,9 +80,10 @@ def evalIndexes(matrix, arrays, arrayindx, symbol=''):
                 empt_counts[i] = emptcount + 1
             elif e == symbol:
                 counts[i] = count + 1
-    return counts
+    return counts, empt_counts, coordinates
 
-def pickIndex(counts):
+def pickCoordinates(counts_coordinates_tuple):
+    counts, empt_counts, coordinates = counts_coordinates_tuple
     newindex = 0
     compare = {}
     sorted_keys = sorted([k for k in counts.keys()])
@@ -99,7 +104,4 @@ def pickIndex(counts):
         else:
             empt_counts = {str(k)+str(v): k for k,v in empt_counts.items() if v==max(empt_counts.values())}
             newindex = list(empt_counts.values())[0]
-    return newindex
-                
-print(pickIndex(evalIndexes(tst, 0, 'x')))
-print(pickIndex(evalIndexes(tst2, 0, 'x')))
+    return coordinates[newindex]
