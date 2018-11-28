@@ -1,11 +1,13 @@
 
+
+
 #tst = ['.', 'o', '.', '.', 'x', '.', 'x', '.' ,'x', 'x', '.', 'x', 'x', 'x', '.']
 tst1 = ['.', 'o', 'x', 'x', 'x']
 tst2 = ['.', '.', 'x', 'x', '.']
 tst3 = ['.', 'o', 'x', 'x', '.']
 tst4 = ['.', '.', 'x', '.', '.']
 tst5 = ['x', '.', 'x', '.', 'o', '.', '.', 'x']
-tst6 = ['x', '.', 'x', '.', '.', 'o', '.', '.', 'x']
+tst6 = ['x', '.', 'x', '.', 'o', 'o', 'o', '.', 'x']
 tst7  = ['o', '.', 'x', 'x', '.']
 tst8 = ['.', 'x', 'x', '.', 'x', 'o', '.', '.', 'x']
 tst9 = ['.', 'x', 'x', '.', '.', 'x', '.', '.', 'x']
@@ -65,7 +67,7 @@ def getBestArrays(arrays, arrays_values, symbol):
             if any(x==('.'or symbol) for x in getLinearNeighbors(arrays[indx], sindx, eindx)):
                 vlen = vlen + 1
         if vstring.count(symbol)==3:
-            if (type(vlen)==int and vstring.count('.')>=1) or (type(vlen)==float and vstring.count('.')%2!=0):
+            if (type(vlen)==int and vstring.count('.')>=1) or (type(vlen)==float and (vstring.count('.')%2!=0 or vstring.count('.')==2)):
                 vlen = 10
         maxlen = vlen if maxlen < vlen else maxlen
         arrays_values[k] = vstring, vlen
@@ -76,7 +78,7 @@ def getBestArrays(arrays, arrays_values, symbol):
             if vlen==maxlen:
                 sindx, eindx = getIndx_frSubarray(arrays[indx], arrays_values[k][0])
                 if any(x==('.' or symbol) for x in (arrays[indx][sindx-1] if sindx>0 else '', 
-                                    arrays[k][eindx+1] if eindx<len(arrays[k])+1 else '')):
+                                    arrays[indx][eindx+1] if eindx<len(arrays[indx])+1 else '')):
                     maxlen = vlen + 1
                     arrays_values[k] = vstring, maxlen
     arrays_values = {k: v for k,v in arrays_values.items() if v[1]==maxlen}
@@ -84,7 +86,7 @@ def getBestArrays(arrays, arrays_values, symbol):
 
 all_arrays = tst1, tst2, tst3, tst4, tst5, tst6, tst7, tst8, tst9
 
-def bestArray(arrayslst, symb1='', symb2=''):
+def bestArray(all_arrays, symb1='', symb2=''):
     arraysdict_s1 = getArraysValues(all_arrays, symb1)
     arraysdict_s2 = getArraysValues(all_arrays, symb2)
     best_array_s1, maxval1 = getBestArrays(all_arrays, arraysdict_s1, symb1)
@@ -96,18 +98,17 @@ def bestArray(arrayslst, symb1='', symb2=''):
         for k in best_array.keys():
             if best_array[k]==10:
                 if type(k)==str:
-                    candidate = all_arrays[int(k)]
+                    candidate = all_arrays[int(k)], symb2
                     break
-                candidate = all_arrays[k]
-                break
+                candidate = all_arrays[k], symb1
             else:
                 if type(k)==int:
-                    candidate = all_arrays[k]
+                    candidate = all_arrays[k], symb1
                     break
-                candidate = all_arrays[int(k)]
-                break
+                candidate = all_arrays[int(k)], symb2
     else:
-        candidate = all_arrays[int(list(best_array.keys())[0])]
+        candidate = list(best_array.keys())[0]
+        candidate = all_arrays[int(candidate)], symb1 if type(candidate)==int else symb2
     return candidate
 
 
