@@ -1,4 +1,5 @@
 
+
 import random
 
 
@@ -172,9 +173,11 @@ def bestArray(all_arrays, symb1='', symb2=''):
     arraysdict_s2 = getArraysValues(all_arrays, symb2)
     best_array_s1, maxval1 = getBestArrays(all_arrays, arraysdict_s1, symb1)
     best_array_s2, maxval2 = getBestArrays(all_arrays, arraysdict_s2, symb2)
+    print("best_array s1 = {} | best_array s2 = {}".format(best_array_s1, best_array_s2))
     maxval = maxval1 if maxval1 > maxval2 else maxval2
     best_array = {k: v[1] for k,v in {**best_array_s1, **best_array_s2}.items() if v[1]==maxval}
     candidate_data = None
+    print("final candidates {}".format(best_array))
     if len(best_array.keys()) > 1:
         for k in best_array.keys():
             if best_array[k]==10:
@@ -185,8 +188,10 @@ def bestArray(all_arrays, symb1='', symb2=''):
             else:
                 if type(k)==int:
                     candidate_data = (all_arrays[k], k, symb1)
+                    print(candidate_data)
                     break
                 candidate_data = (all_arrays[int(k)], int(k), symb2)
+                print(candidate_data)
     else:
         candidate_data = list(best_array.keys())[0]
         candidate_data = (all_arrays[int(candidate_data)], int(candidate_data), symb1 if type(candidate_data)==int else symb2)
@@ -227,8 +232,8 @@ def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx, index
                         "matrix[r+1][c];matrix[r+1][c+1];matrix[r][c+1]"
     if indexonly:
         return r, c
-    print(neighbors)
     for cell in neighbors.strip().split(';'):
+        print(eval(cell))
         try:
             indxs = [indx_str[:-1] for indx_str in cell.split('[') if ']' in indx_str]
             for indx in indxs:
