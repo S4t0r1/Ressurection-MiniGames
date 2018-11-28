@@ -1,4 +1,3 @@
-
 def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx):
     size = len(matrix)
     count = 0
