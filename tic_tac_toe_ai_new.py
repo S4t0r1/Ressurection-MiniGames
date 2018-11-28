@@ -76,7 +76,7 @@ def getDiags2(matrix):
     if size > 3:
         diags, diag_horz = [], []
         for i in range(size):
-            diag_vert = [matrix[(size-1)-n+i][n] for n in range(size) if (size-1)-n+i<=(size-1)]
+            diag_vert = [matrix[(size-1)-n-i][n] for n in range(size) if (size-1)-n-i>=0]
             if i > 0:
                 diag_horz = [matrix[(size-1)-n][n+i] for n in range(size) if n+i<=(size-1)]
             for lst in (diag_vert, diag_horz):
@@ -165,6 +165,9 @@ def getBestArrays(arrays, arrays_values, symbol):
                     maxlen = vlen + 1
                     arrays_values[k] = vstring, maxlen
     arrays_values = {k: v for k,v in arrays_values.items() if v[1]==maxlen}
+    print(arrays_values)
+    for i, arr in enumerate(arrays):
+        print("{}:".format(i), arr, len(arr))
     return arrays_values, maxlen
 
 
