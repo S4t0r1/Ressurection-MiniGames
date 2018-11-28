@@ -189,11 +189,11 @@ def bestArray(all_arrays, symb1='', symb2=''):
                     break
                 candidate_data = (all_arrays[k], k, symb1)
             else:
-                if type(k)==int:
-                    candidate_data = (all_arrays[k], k, symb1)
+                if type(k)==str:
+                    candidate_data = (all_arrays[k], k, symb2)
                     print(candidate_data)
                     break
-                candidate_data = (all_arrays[int(k)], int(k), symb2)
+                candidate_data = (all_arrays[int(k)], int(k), symb1)
                 print(candidate_data)
     else:
         candidate_data = list(best_array.keys())[0]
