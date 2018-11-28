@@ -1,18 +1,59 @@
+
 tst = ['.', 'o', '.', '.', 'x', '.', 'x', '.' ,'x', 'x', '.', 'x', 'x', 'x', '.']
 tst2 = ['.', '.', 'x', 'x', '.']
 
-def checkNeighbors(matrix, index1=0, index2=0):
+def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx):
+    size = len(matrix)
     count = 0
-    for cell in (matrix[index1][index2+1], matrix[index1][index2-1]):
-        if cell != '.':
-            count += 1
-    return str(count)
+    if (0 <= arrayindx <= size-1):
+        r, c = arrayindx, movingindx
+        neighbors = "matrix[r+1][c-1];matrix[r+1][c];matrix[r+1][c+1];"  \
+                    "matrix[r-1][c-1];matrix[r-1][c];matrix[r-1][c+1]"
+    elif (size <= arrayindx <= (size*2)-1):
+        r, c = movingindx, arrayindx - size
+        neighbors = "matrix[r-1][c-1];matrix[r-1][c+1];"  \
+                    "matrix[r][c-1];matrix[r][c+1];"      \
+                    "matrix[r+1][c-1];matrix[r+1][c+1]"
+    else:
+        fulldiag1_indx = size*2
+        fulldiag2_indx = int(fulldiag1_indx + (((max_arrayindx+1)-fulldiag1_indx)/2))
+        diffr = size - arraylen
+        if (fulldiag1_indx <= arrayindx < fulldiag2_indx):
+            if arrayindx == fulldiag1_indx:
+                r, c = movingindx, movingindx 
+            else:
+                r = movingindx + (diffr if arrayindx%2!=0 else 0)
+                c = movingindx + (diffr if arrayindx%2==0 else 0)
+            neighbors = "matrix[r-1][c];matrix[r-1][c+1];matrix[r][c+1];"  \
+                        "matrix[r][c-1];matrix[r+1][c-1];matrix[r+1][c]"
+        else:
+            if arrayindx == fulldiag2_indx:
+                r, c = (size-1)-movingindx, movingindx
+            else:
+                r = ((size-1)-movingindx) - (diffr if arrayindx%2==0 else 0)
+                c = movingindx + (diffr if arrayindx%2!=0 else 0)
+            neighbors = "matrix[r][c-1];matrix[r-1][c-1];matrix[r-1][c];"  \
+                        "matrix[r+1][c];matrix[r+1][c+1];matrix[r][c+1]"
+    for cell in neighbors.strip().split(';'):
+        try:
+            indxs = [indx_str[:-1] for indx_str in cell.split('[') if ']' in indx_str]
+            for indx in indxs:
+                if eval(indx) < 0 or eval(indx) >= (size-1):
+                    raise IndexError()
+            if eval(cell) != '.':
+                count += 1
+        except IndexError:
+            continue
+        else:
+            print("{} | {} : filled count = {}".format(r, c, count))
+    return count
 
-def editIndex(array, index1, index2, symbol=''):
-    newindex = index1
+def evalIndexes(matrix, arrays, arrayindx, symbol=''):
+    array = arrays[arrayindx]
+    newindex = 0
     counts, count = {}, 0
     empt_counts, emptcount = {}, 0
-    for i,e in enumerate(array):
+    for i, e in enumerate(array):
         if i < (len(array)-1):
             if e == symbol:
                 count += 1
@@ -21,7 +62,7 @@ def editIndex(array, index1, index2, symbol=''):
                     count = 0
             if e == '.':
                 if array[i+1] == symbol or array[i-1] == symbol:
-                    counts[i] = checkNeighbors(matrix, i, index2)
+                    counts[i] = str(checkNeighbors(matrix, len(arrays)-1, arrayindx, len(array), i))
                     newindex = i
                 emptcount += 1
                 if array[i+1] != '.':
@@ -30,11 +71,15 @@ def editIndex(array, index1, index2, symbol=''):
         else:
             if e == '.':
                 if array[i-1] == symbol:
-                    counts[i] = checkNeighbors(matrix, i, index2)
+                    counts[i] = str(checkNeighbors(matrix, len(arrays)-1, arrayindx, len(array), i))
                     newindex = i
                 empt_counts[i] = emptcount + 1
             elif e == symbol:
                 counts[i] = count + 1
+    return counts
+
+def pickIndex(counts):
+    newindex = 0
     compare = {}
     sorted_keys = sorted([k for k in counts.keys()])
     for i,indx in enumerate(sorted_keys):
@@ -56,5 +101,5 @@ def editIndex(array, index1, index2, symbol=''):
             newindex = list(empt_counts.values())[0]
     return newindex
                 
-print(editIndex(tst, 0, 'x'))
-print(editIndex(tst2, 0, 'x'))
+print(pickIndex(evalIndexes(tst, 0, 'x')))
+print(pickIndex(evalIndexes(tst2, 0, 'x')))
