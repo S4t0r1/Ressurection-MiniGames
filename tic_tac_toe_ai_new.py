@@ -160,7 +160,7 @@ def getBestArrays(arrays, arrays_values, symbol):
             if vlen==maxlen:
                 sindx, eindx = getIndx_frSubarray(arrays[indx], arrays_values[k][0])
                 if any(x==('.' or symbol) for x in (arrays[indx][sindx-1] if sindx>0 else '', 
-                                    arrays[indx][eindx+1] if eindx<len(arrays[indx])+1 else '')):
+                                    arrays[indx][eindx+1] if eindx<len(arrays[indx])-1 else '')):
                     maxlen = vlen + 1
                     arrays_values[k] = vstring, maxlen
     arrays_values = {k: v for k,v in arrays_values.items() if v[1]==maxlen}
@@ -227,6 +227,7 @@ def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx, index
                         "matrix[r+1][c];matrix[r+1][c+1];matrix[r][c+1]"
     if indexonly:
         return r, c
+    print(neighbors)
     for cell in neighbors.strip().split(';'):
         try:
             indxs = [indx_str[:-1] for indx_str in cell.split('[') if ']' in indx_str]
