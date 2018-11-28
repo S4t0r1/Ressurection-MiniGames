@@ -139,6 +139,7 @@ def getIndx_frSubarray(prim_data, secon_data):
     return (sindx, eindx)
 
 
+
 def getBestArrays(arrays, arrays_values, symbol):
     maxlen = max(len(v) for v in arrays_values.values())
     for k, v in arrays_values.items():
