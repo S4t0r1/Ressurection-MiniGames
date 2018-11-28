@@ -1,3 +1,4 @@
+
 import random
 
 
@@ -32,30 +33,44 @@ def makeTurns(matrix, size, player, warning=None):
         r, c = makeTurns(matrix, size, player, print(err))
     return (r, c)
 
-def getRow(matrix, r, size):
-    return [matrix[r][n] for n in range(size)]
+def getRow(matrix, r=0, all_=False):
+    if all_:
+        rows = []
+        for i in range(len(matrix)):
+            rows.append([matrix[i][n] for n in range(len(matrix))])
+        return rows
+    return ([matrix[r][n] for n in range(len(matrix))],)
 
-def getCol(matrix, c, size):
-    return [matrix[n][c] for n in range(size)]
+def getCol(matrix, c=0, all_=False):
+    if all_:
+        cols = []
+        for i in range(len(matrix)):
+            cols.append([matrix[n][i] for n in range(len(matrix))])
+        return cols
+    return ([matrix[n][c] for n in range(len(matrix))],)
 
-def getDiags1(matrix, size):
+def getDiags1(matrix):
+    size = len(matrix)
     if size > 3:
-        diags = []
+        diags, diag_horz = [], []
         for i in range(size):
             diag_vert = [matrix[n+i][n] for n in range(size) if n+i<=(size-1)]
-            diag_horz = [matrix[n][n+i] for n in range(size) if n+i<=(size-1)]
+            if i > 0:
+                diag_horz = [matrix[n][n+i] for n in range(size) if n+i<=(size-1)]
             for lst in (diag_vert, diag_horz):
                 if len(lst) >= 4:
                     diags.append(lst)
         return diags
     return ([matrix[n][n] for n in range(size)],)
 
-def getDiags2(matrix, size):
+def getDiags2(matrix):
+    size = len(matrix)
     if size > 3:
-        diags = []
+        diags, diag_horz = [], []
         for i in range(size):
             diag_vert = [matrix[(size-1)-n+i][n] for n in range(size) if (size-1)-n+i<=(size-1)]
-            diag_horz = [matrix[(size-1)-n][n+i] for n in range(size) if n+i<=(size-1)]
+            if i > 0:
+                diag_horz = [matrix[(size-1)-n][n+i] for n in range(size) if n+i<=(size-1)]
             for lst in (diag_vert, diag_horz):
                 if len(lst) >= 4:
                     diags.append(lst)
@@ -64,11 +79,11 @@ def getDiags2(matrix, size):
 
 def winCheck(matrix, r, c, size, player):
     printGrid(matrix)
-    row = getRow(matrix, r, size)
-    col = getCol(matrix, c, size)
-    diags1 = getDiags1(matrix, size)
-    diags2 = getDiags2(matrix, size)
-    for array in (row, col, *diags1, *diags2):
+    row = getRow(matrix, r)
+    col = getCol(matrix, c)
+    diags1 = getDiags1(matrix)
+    diags2 = getDiags2(matrix)
+    for array in (*row, *col, *diags1, *diags2):
         count = 0
         for i in range(len(array)):
             count += 1
