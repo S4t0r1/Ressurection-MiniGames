@@ -3,44 +3,42 @@
 def getCoordinates(matrix, max_arrayindx, arrayindx, movingindx):
     size = len(matrix)
     rowindx, colindx = 0, 0
+    count = 0
     if (0 <= arrayindx <= size-1):
-        rowindx, colindx = arrayindx, movingindx
+        r, c = arrayindx, movingindx
+        neighbors = (matrix[r+1][c-1], matrix[r+1][c], matrix[r+1][c+1],
+                     matrix[r-1][c-1], matrix[r-1][c], matrix[r-1][c+1])
     elif (size <= arrayindx <= (size*2)-1):
-        rowindx, colindx = movingindx, arrayindx
+        r, c = movingindx, arrayindx
+        neighbors = (matrix[r-1][c-1], matrix[r-1][c+1],
+                     matrix[r][c-1], matrix[r][c+1],
+                     matrix[r+1][c-1], matrix[r+1][c+1])
     else:
         fulldiag1_indx = size*2
         fulldiag2_indx = fulldiag1_indx + (((max_arrayindx+1)-fulldiag1_indx)/2)
         if (fulldiag1_indx <= arrayindx < fulldiag2_indx):
             if arrayindx == fulldiag1_indx:
-                rowindx, colindx = movingindx, movingindx 
+                r, c = movingindx, movingindx 
             else:
                 diffr = arrayindx-fulldiag1_indx
-                rowindx = movingindx + (diffr if arrayindx%2!=0 else 0)
-                colindx = movingindx + (diffr in arrayindx%2==0 else 0)
-        elif arrayindx == fulldiag2_indx:
-            rowindx, colindx = (size-1)-movindx, movindx
+                r = movingindx + (diffr if arrayindx%2!=0 else 0)
+                c = movingindx + (diffr in arrayindx%2==0 else 0)
+            neighbors = (matrix[r-1][c], matrix[r-1][c+1], matrix[r][c+1],
+                         matrix[r][c-1], matrix[r+1][c-1], matrix[r+1][c])
         else:
             if arrayindx == fulldiag2_indx:
-                rowindx, colindx = (size-1)-movingindx, movingindx
+                r, c = (size-1)-movingindx, movingindx
             else:
                 diffr = arrayindx-fulldiag2_indx
-                rowindx = ((size-1)-movingindx) - (diffr if arrayindx%2==0 else 0)
-                colindx = movingindx + (diffr if arrayindx%2!=0 else 0)
-    return rowindx, colindx
-
-
-'''
-def checkNeighbors(matrix, arrayindx):
-    count = 0
-    for cell in (matrix[index1][index2+1], matrix[index1][index2-1],
-                 matrix[index1-1][index2+1], matrix[index1-1][index2-1],
-                 matrix[index1+1][index2+1], matrix[index1+1], matrix[index2-1]):
-        if cell != '.':
-            count += 1
+                r = ((size-1)-movingindx) - (diffr if arrayindx%2==0 else 0)
+                c = movingindx + (diffr if arrayindx%2!=0 else 0)
+            neighbors = (matrix[r][c-1], matrix[r-1][c-1], matrix[r-1][c],
+                         matrix[r+1][c], matrix[r+1][c+1], matrix[r][c+1])
+    for cell in neighbors:
+        try:
+            if cell != '.':
+                count += 1
+        except IndexError:
+            continue
     return count
-'''
 
-
-def checkNeighbors(matrix, rowindx, colindx):
-    count = 0
-    
