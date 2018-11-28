@@ -1,6 +1,5 @@
 
 
-
 #tst = ['.', 'o', '.', '.', 'x', '.', 'x', '.' ,'x', 'x', '.', 'x', 'x', 'x', '.']
 tst1 = ['.', 'o', 'x', 'x', 'x']
 tst2 = ['.', '.', 'x', 'x', '.']
@@ -93,23 +92,23 @@ def bestArray(all_arrays, symb1='', symb2=''):
     best_array_s2, maxval2 = getBestArrays(all_arrays, arraysdict_s2, symb2)
     maxval = maxval1 if maxval1 > maxval2 else maxval2
     best_array = {k: v[1] for k,v in {**best_array_s1, **best_array_s2}.items() if v[1]==maxval}
-    candidate = None
+    candidate_data = None
     if len(best_array.keys()) > 1:
         for k in best_array.keys():
             if best_array[k]==10:
                 if type(k)==str:
-                    candidate = all_arrays[int(k)], symb2
+                    candidate_data = (all_arrays[int(k)], int(k), symb2)
                     break
-                candidate = all_arrays[k], symb1
+                candidate_data = (all_arrays[k], k, symb1)
             else:
                 if type(k)==int:
-                    candidate = all_arrays[k], symb1
+                    candidate_data = (all_arrays[k], k, symb1)
                     break
-                candidate = all_arrays[int(k)], symb2
+                candidate_data = (all_arrays[int(k)], int(k), symb2)
     else:
-        candidate = list(best_array.keys())[0]
-        candidate = all_arrays[int(candidate)], symb1 if type(candidate)==int else symb2
-    return candidate
+        candidate_data = list(best_array.keys())[0]
+        candidate_data = (all_arrays[int(candidate_data)], int(candidate_data), symb1 if type(candidate_data)==int else symb2)
+    return candidate_data
 
 
 print(bestArray(all_arrays, 'x', 'o'))
