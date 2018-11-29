@@ -1,9 +1,5 @@
 
 
-
-import random
-
-
 def getSize(warning=None):
     try:
         inpt = int(input("\nChoose TicTacToe grid size (min=3): "))
@@ -87,7 +83,7 @@ def getDiags2(matrix):
     return ([matrix[(size-1)-n][n] for n in range(size)],)
 
 
-def getCoordinates(matrix, max_arrayindx, arrayindx, arraylen, movingindx):
+def getCoordinates(matrix, max_arraynum, arrayindx, arraylen, movingindx):
     size = len(matrix)
     if (0 <= arrayindx <= size-1):
         r, c = arrayindx, movingindx
@@ -95,7 +91,7 @@ def getCoordinates(matrix, max_arrayindx, arrayindx, arraylen, movingindx):
         r, c = movingindx, arrayindx - size
     else:
         fulldiag1_indx = size*2
-        fulldiag2_indx = int(fulldiag1_indx + (((max_arrayindx+1)-fulldiag1_indx)/2))
+        fulldiag2_indx = int(fulldiag1_indx + (((max_arraynum+1)-fulldiag1_indx)/2))
         diffr = size - arraylen
         if (fulldiag1_indx <= arrayindx < fulldiag2_indx):
             if arrayindx == fulldiag1_indx:
@@ -191,7 +187,6 @@ def getMaxDistance(array, array_coordlst, enemy_symb, spot_coord):
             
 
 def evalAreaArrays(matrix, arrays_coord_dict, arrays, best_arrays):
-    # arrays_coord_dict
     max_pot_scores = {}
     prev_coords_data = {}
     for k, v in best_arrays.items():
@@ -208,20 +203,7 @@ def evalAreaArrays(matrix, arrays_coord_dict, arrays, best_arrays):
                 pot_distances_per_pos = 0
                 for key, v in affected_arrays.items():
                     array, coordlst = v
-                    spotted, end = None, None
-                    start = 0
-                    for i, cell, coord in zip(range(len(array)), array, coordlst):
-                        if coord == coord_tuple:
-                            spotted = True
-                        if cell == 'x':
-                            if spotted:
-                                end = i
-                                break
-                            else:
-                                start = i
-                    if not end:
-                        end = i
-                    if (end - start) >= 4:
+                    if getMaxDistance(array, coordlst, 'x', coord_tuple) >= 4:
                         pot_distances_per_pos += 1
                 pot_distances_per_array += pot_distances_per_pos
         max_pot_scores[k] = pot_distances_per_array
@@ -268,7 +250,6 @@ def getBestArrays(arrays, arrays_coord_dict, arrays_values, symbol):
 
 
 def bestArray(matrix, all_arrays, arrays_coord_dict, symb1='', symb2=''):
-    # arrays_coord_dict
     arraysdict_s1 = getArraysValues(all_arrays, symb1)
     arraysdict_s2 = getArraysValues(all_arrays, symb2)
     best_array_s1, maxval1 = getBestArrays(all_arrays, arrays_coord_dict, arraysdict_s1, symb1)
@@ -379,7 +360,6 @@ def pickCoordinates(counts_coords_tuple):
                 nxt = nxt if type(nxt)==int else 0    
             compare[indx] = prev + (int(counts[indx])+1) + nxt
     if len(compare.keys()) > 0:
-        print(compare)
         compare = {str(k)+str(v): k for k,v in compare.items() if v==max(compare.values())}
         if len(compare.keys()) == 1:
             newindex = list(compare.values())[0]
@@ -397,9 +377,10 @@ def aiMovesAnalysis(matrix, arrays_coords, symbol1, symbol2):
     return coordinates_tuple
 
 
-def aiMove(matrix, arrays_coords, emptycount, r, c):
+def aiMove(matrix, arrays_coords, emptycount, r, c, msg="\nAi taking a move.."):
     movescount = (len(matrix)**2)-emptycount
     maxindx = len(matrix)-1
+    print(msg)
     if movescount == 1:
         if any(x==(r, c) for x in [(0, 0), (0, maxindx), (maxindx, 0), (maxindx, maxindx)]):
             return tuple(len(matrix)//2 +(1 if maxindx%2==0 else 0) for i in range(2))
