@@ -1,5 +1,6 @@
 
 
+
 import random
 
 
@@ -173,13 +174,27 @@ def getIndx_frSubarray(prim_data, secon_data):
     return (sindx, eindx)
 
 
+def getMaxDistance(array, array_coordlst, enemy_symb, spot_coord):
+    start = 0
+    spotted, end = None, None
+    for i, cell, coord in zip(range(len(array)), array, array_coordlst):
+        if cell == spot_coord:
+            spotted = True
+        if cell == enemy_symb:
+            if spotted:
+                end = i
+                break
+            start = i
+    if not end:
+        end = i
+    return (end-start)
+            
+
 def evalAreaArrays(matrix, arrays_coord_dict, arrays, best_arrays):
     # arrays_coord_dict
     max_pot_scores = {}
     prev_coords_data = {}
-    print("*"*30)
     for k, v in best_arrays.items():
-        print("{k} : {v}".format(**locals()))
         indx = int(k)
         vstring = v[0]
         pot_distances_per_array = 0
@@ -212,14 +227,10 @@ def evalAreaArrays(matrix, arrays_coord_dict, arrays, best_arrays):
         max_pot_scores[k] = pot_distances_per_array
     maxscore = max(max_pot_scores.values())
     best_array_key = list(k for k, v in max_pot_scores.items() if v==maxscore)[0]
-    print("max pot scores", max_pot_scores)
-    print(best_array_key)
-    print("*"*30)
     return best_array_key                  
                 
 
-def getBestArrays(arrays, arrays_values, symbol):
-    print(arrays_values)
+def getBestArrays(arrays, arrays_coord_dict, arrays_values, symbol):
     maxlen = max(len(v) for v in arrays_values.values())
     for k, v in arrays_values.items():
         indx = int(k)
@@ -232,6 +243,14 @@ def getBestArrays(arrays, arrays_values, symbol):
         if vstring.count(symbol)==3:
             if (type(vlen)==int and vstring.count('.')>=1) or (type(vlen)==float and (vstring.count('.')%2!=0 or vstring.count('.')==2)):
                 vlen = 10
+        if vstring.count('o')==2:
+            if type(vlen)==int:
+                sindx, eindx = getIndx_frSubarray(arrays[indx], arrays_values[k])
+                i = sindx if arrays[indx][sindx]=='.' else eindx
+                if getMaxDistance(arrays[indx], arrays_coord_dict[indx], 'x', arrays_coord_dict[indx][i]) >= 4:
+                    vlen = 7
+            else:
+                vlen = 7
         maxlen = vlen if maxlen < vlen else maxlen
         arrays_values[k] = vstring, vlen
     if type(maxlen)==int:
@@ -252,13 +271,11 @@ def bestArray(matrix, all_arrays, arrays_coord_dict, symb1='', symb2=''):
     # arrays_coord_dict
     arraysdict_s1 = getArraysValues(all_arrays, symb1)
     arraysdict_s2 = getArraysValues(all_arrays, symb2)
-    best_array_s1, maxval1 = getBestArrays(all_arrays, arraysdict_s1, symb1)
-    best_array_s2, maxval2 = getBestArrays(all_arrays, arraysdict_s2, symb2)
-    print("best_array s1 = {} | best_array s2 = {}".format(best_array_s1, best_array_s2))
+    best_array_s1, maxval1 = getBestArrays(all_arrays, arrays_coord_dict, arraysdict_s1, symb1)
+    best_array_s2, maxval2 = getBestArrays(all_arrays, arrays_coord_dict, arraysdict_s2, symb2)
     maxval = maxval1 if maxval1 > maxval2 else maxval2
     best_arrays = {k: v for k,v in {**best_array_s1, **best_array_s2}.items() if v[1]==maxval}
     candidate_data = None
-    print("final candidates {}".format(best_arrays))
     if len(best_arrays.keys()) > 1:
         for k in best_arrays.keys():
             if best_arrays[k]==10:
@@ -270,10 +287,8 @@ def bestArray(matrix, all_arrays, arrays_coord_dict, symb1='', symb2=''):
                 k = evalAreaArrays(matrix, arrays_coord_dict, all_arrays, best_arrays)
                 if type(k)==str:
                     candidate_data = (all_arrays[int(k)], int(k), symb2)
-                    print("candidate_data o aim", candidate_data)
                     break
                 candidate_data = (all_arrays[int(k)], int(k), symb1)
-                print("candidate_data x aim", candidate_data)
     else:
         candidate_data = list(best_arrays.keys())[0]
         candidate_data = (all_arrays[int(candidate_data)], int(candidate_data), symb1 if type(candidate_data)==int else symb2)
@@ -282,7 +297,6 @@ def bestArray(matrix, all_arrays, arrays_coord_dict, symb1='', symb2=''):
 
 def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx, indexonly=False):
     r, c = getCoordinates(matrix, max_arrayindx, arrayindx, arraylen, movingindx)
-    print("r={r}|c={c}|arrayindx={arrayindx}".format(**locals()))
     size = len(matrix)
     fulldiag1_indx = size*2
     fulldiag2_indx = int(fulldiag1_indx + (((max_arrayindx+1)-fulldiag1_indx)/2))
@@ -351,8 +365,6 @@ def evalIndexes(matrix, arrays, arrayindx, symbol=''):
 
 def pickCoordinates(counts_coords_tuple):
     counts, empt_counts, coordinates = counts_coords_tuple
-    print(coordinates)
-    print(empt_counts)
     newindex = 0
     compare = {}
     sorted_keys = sorted([k for k in counts.keys()])
@@ -390,12 +402,12 @@ def aiMove(matrix, arrays_coords, emptycount, r, c):
     maxindx = len(matrix)-1
     if movescount == 1:
         if any(x==(r, c) for x in [(0, 0), (0, maxindx), (maxindx, 0), (maxindx, maxindx)]):
+            return tuple(len(matrix)//2 +(1 if maxindx%2==0 else 0) for i in range(2))
+        else:
             coords = []
             for coord in (r, c):
-                coords.append(coord+1 if coord==0 else coord-1)
+                coords.append(coord-1 if coord>= len(matrix)//2 else coord+1)
             return coords
-        else:
-            return tuple(len(matrix)//2 +(1 if maxindx%2==0 else 0) for i in range(2))
     else:
         return aiMovesAnalysis(matrix, arrays_coords, 'x', 'o')
 
