@@ -314,10 +314,12 @@ def evalIndexes(matrix, arrays, arrayindx, symbol=''):
     counts, empt_counts = {}, {}
     count, emptcount = 0, 0
     coordinates = {}
+    spotted = None
     for i, e in enumerate(array):
         coordinates[i] = getCoordinates(matrix, len(arrays)-1, arrayindx, len(array), i)
         if i < (len(array)-1):
             if e == symbol:
+                spotted = i
                 count += 1
                 if array[i+1] != symbol:
                     counts[i] = count
@@ -328,14 +330,14 @@ def evalIndexes(matrix, arrays, arrayindx, symbol=''):
                     newindex = i
                 emptcount += 1
                 if array[i+1] != '.':
-                    empt_counts[i] = emptcount
+                    empt_counts[i if not spotted else spotted+1] = emptcount
                     emptcount = 0
         else:
             if e == '.':
                 if array[i-1] == symbol:
                     counts[i] = str(checkNeighbors(matrix, len(arrays)-1, arrayindx, len(array), i))
                     newindex = i
-                empt_counts[i] = emptcount + 1
+                empt_counts[i-emptcount] = emptcount + 1
             elif e == symbol:
                 counts[i] = count + 1
     return counts, empt_counts, coordinates
@@ -344,6 +346,7 @@ def evalIndexes(matrix, arrays, arrayindx, symbol=''):
 def pickCoordinates(counts_coords_tuple):
     counts, empt_counts, coordinates = counts_coords_tuple
     print(coordinates)
+    print(empt_counts)
     newindex = 0
     compare = {}
     sorted_keys = sorted([k for k in counts.keys()])
@@ -357,13 +360,13 @@ def pickCoordinates(counts_coords_tuple):
                 nxt = counts[sorted_keys[i+1]]
                 nxt = nxt if type(nxt)==int else 0    
             compare[indx] = prev + (int(counts[indx])+1) + nxt
-            print(compare[indx])
     if len(compare.keys()) > 0:
+        print(compare)
         compare = {str(k)+str(v): k for k,v in compare.items() if v==max(compare.values())}
         if len(compare.keys()) == 1:
             newindex = list(compare.values())[0]
         else:
-            empt_counts = {str(k)+str(v): (k-v)+1 for k,v in empt_counts.items() if v==max(empt_counts.values())}
+            empt_counts = {str(k)+str(v): k for k,v in empt_counts.items() if v==max(empt_counts.values())}
             newindex = list(empt_counts.values())[0]
     return coordinates[newindex]
 
