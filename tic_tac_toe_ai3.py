@@ -256,7 +256,10 @@ def bestArray(matrix, all_arrays, arrays_coord_dict, symb1='', symb2=''):
     best_array_s1, maxval1 = getBestArrays(all_arrays, arrays_coord_dict, arraysdict_s1, symb1)
     best_array_s2, maxval2 = getBestArrays(all_arrays, arrays_coord_dict, arraysdict_s2, symb2)
     maxval = maxval1 if maxval1 > maxval2 else maxval2
+    print("best_array_s1", best_array_s1)
+    print("best_array_s2", best_array_s2)
     best_arrays = {k: v for k,v in {**best_array_s1, **best_array_s2}.items() if v[1]==maxval}
+    print("best", best_arrays)
     candidate_data = None
     if len(best_arrays.keys()) > 1:
         for k in best_arrays.keys():
@@ -308,7 +311,7 @@ def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx, index
                 if eval(indx) < 0 or eval(indx) >= (size-1):
                     raise IndexError()
             if eval(cell) != '.':
-                count += (2 if cell=='x' else 1)
+                count += (2+(1 if neighbors.count('x')>=3 else 0) if eval(cell)=='x' else 1)
         except IndexError:
             continue
     return count
@@ -346,6 +349,7 @@ def evalIndexes(matrix, arrays, arrayindx, symbol=''):
                 empt_counts[i-emptcount] = emptcount + 1
             elif e == symbol:
                 counts[i] = count + 1
+    print("counts", counts)
     return counts, empt_counts, coordinates
 
 
@@ -364,6 +368,7 @@ def pickCoordinates(counts_coords_tuple):
                 nxt = counts[sorted_keys[i+1]]
                 nxt = nxt if type(nxt)==int else 0    
             compare[indx] = prev + (int(counts[indx])+1) + nxt
+    print("compare_indexes", compare)
     if len(compare.keys()) > 0:
         compare = {str(k)+str(v): k for k,v in compare.items() if v==max(compare.values())}
         if len(compare.keys()) == 1:
