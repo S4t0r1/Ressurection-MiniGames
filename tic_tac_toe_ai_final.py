@@ -22,6 +22,10 @@ def printGrid(matrix):
     print("\n{}\n".format('\n'.join(' '.join(e for e in l) for l in matrix)))
 
 
+def ai():
+    return True if input("Play vs AI?\n").lower() in {"y", "yes"} else False
+
+
 def makeTurns(matrix, size, player, warning=None):
     try:
         r, c = [int(num) for num in input("{} make a turn!\n(number1=row)\n(number2=col)\n"
@@ -161,6 +165,7 @@ def getArraysValues(arrays, symbol):
             maxvalue = max(values_.values())
             for key in values_.keys():
                 if values_[key] == maxvalue:
+                    #prim_symb
                     arrays_values[indx if symbol!='o' else str(indx)] = array[key+1-maxvalue:key+1]
     return arrays_values
 
@@ -205,6 +210,7 @@ def evalAreaArrays(matrix, arrays_coord_dict, arrays, best_arrays):
                 pot_distances_per_pos = 0
                 for key, v in affected_arrays.items():
                     array, coordlst = v
+                    #sec_symb
                     if getMaxDistance(array, coordlst, 'x', coord_tuple) >= 4:
                         pot_distances_per_pos += 1
                 pot_distances_per_array += pot_distances_per_pos
@@ -227,10 +233,12 @@ def getBestArrays(arrays, arrays_coord_dict, arrays_values, symbol):
         if vstring.count(symbol)==3:
             if (type(vlen)==int and vstring.count('.')>=1) or (type(vlen)==float and (vstring.count('.')%2!=0 or vstring.count('.')==2)):
                 vlen = 10
+        #prim_symb
         if vstring.count('o')==2:
             if type(vlen)==int:
                 sindx, eindx = getIndx_frSubarray(arrays[indx], arrays_values[k])
                 i = sindx if arrays[indx][sindx]=='.' else eindx
+                #sec_symb
                 if getMaxDistance(arrays[indx], arrays_coord_dict[indx], 'x', arrays_coord_dict[indx][i]) >= 4:
                     vlen = 7
             else:
@@ -309,6 +317,7 @@ def checkNeighbors(matrix, max_arrayindx, arrayindx, arraylen, movingindx, index
                 if eval(indx) < 0 or eval(indx) >= (size-1):
                     raise IndexError()
             if eval(cell) != '.':
+                #sec_symb
                 count += (2+(1 if neighbors.count('x')>=3 else 0) if eval(cell)=='x' else 1)
         except IndexError:
             continue
@@ -461,7 +470,7 @@ def winCheck(matrix, r, c, size, player):
     return False
 
 
-def gameSet(ai=False, p1='x', p2='o'):
+def gameSet(ai_play=False, p1='x', p2='o'):
     matrix, size = grid()
     arrays_coords = getAllArrays(matrix, gen_arrays_coords=True)
     empty_count = size**2
@@ -483,11 +492,11 @@ def game():
     player1, player2 = 0, 0
     player_scores = {"x": player1, "o": player2}
     while True:
-        gameset = gameSet(ai=True)
+        gameset = gameSet(ai_play=ai())
         if gameset:
             player_scores[gameset] += 1
         print("Player1 'X': {x}\nPlayer2 'O': {o}".format(**player_scores))
-        if input("\nNew game? (y/Y):\n") not in {'y', 'Y'}:
+        if input("\nNew game? (y/Y):\n").lower() not in {'y', 'yes'}:
             return print("Exiting...")
 
 game()
