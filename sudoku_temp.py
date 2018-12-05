@@ -1,7 +1,4 @@
 
-from math import sqrt
-
-
 def file_inpt(filename, optype, encoding):
     with open(filename, optype, encoding=encoding) as fi:
         lines = fi.readlines()
@@ -38,38 +35,88 @@ def getIntCols(datastr, ilst):
     return {getIndxsKey(ilst[k:len(datastr):9]): datastr[k:len(datastr):9] for k in range(9)}
 
 def getIntSquares(datastr, ilst):
-    templst = [(getIndxsKey(ilst[k-3:k]), datastr[k-3:k]) for k in range(3, len(datastr)+1, 3)]
-    ilst, elst = [item[0] for item in templst], [item[1] for item in templst]
-    templst = []
-    for k in range(len(elst)//9):
-        templst.append((getIndxsKey(ilst[k:len(ilst):3]).split(';'), ''.join(elst[k:len(elst):3])))
-    ilst = [indx for indxlst in [item[0] for item in templst] for indx in indxlst]
-    elst = ''.join(str(e) for e in [item[1] for item in templst])
-    return {getIndxsKey(ilst[k-9:k]): elst[k-9:k] for k in range(9, len(elst)+1, 9)}
+    itmp = [ilst[k-3:k] for k in range(3, len(datastr)+1, 3)]
+    newilst = []
+    for j in range(3):
+        for tripl in itmp[j:(len(datastr)//3):3]:
+            for e in tripl:
+                newilst.append(e)
+    return {getIndxsKey(newilst[k-9:k]): ''.join(datastr[i] for i in newilst[k-9:k]) for k in range(9, len(datastr)+1, 9)}
 
 def getSetforArray(array):
     return {e for e in "123456789" if e not in set(array)}
 
-data_str = file_inpt("test.py", 'r', encoding='utf8')
+def getEmptCells(datastr):
+    return [i for i in range(len(datastr)) if datastr[i]=='0']
+
+def cellsSetDict(empt_cells, all_arrays_dict):
+    celldict = {}
+    for indx in empt_cells:
+        check_sets = [getSetforArray(all_arrays_dict[k]) for k in all_arrays_dict if str(indx) in k.split(';')]
+        numset = {str(e) for e in "123456789"}
+        for st in check_sets:
+            numset &= st
+        if numset == set():
+            return False
+        celldict[indx] = numset
+    return celldict
+
+def makeDataChanges(datastr, celldict):
+    changed = None
+    for indx in celldict.keys():
+        if len(celldict[indx]) == 1:
+            changed = True
+            datastr[indx] = ''.join(celldict[indx])
+    if not changed:
+        return changed
+    return datastr
+
+def getArraysSetsDict(all_arrays_dict, celldict):
+    return {indxs_key: [st for st in all_arrays_dict[indxs_key]] for indxs_key in all_arrays_dict.keys()}
+
+def getArrayNakedSets(setslst):
+    checkwith = []
+    for i in range(len(setslst)):
+        count = 1
+        for j, st in enumerate(setslst):
+            if i != j: 
+                if setslst[i] == st:
+                    count += 1
+                    if count == len(setslst[i]) and setslst[j] not in checkwith:
+                        checkwith.append(setslst[i])
+    changesets = {}
+    if len(checkwith) > 0:
+        for check_set in checkwith:
+            for i, st in enumerate(setslst):
+                if st not in checkwith:
+                    changesets[i] = {num for num in st if num not in check_set}
+    else:
+        return False
+    return changesets
+
+def applyAllNakedSets(all_arrays_sets_dict, celldict):
+    found_naked = None
+    for indxs_key in all_arrays_sets_dict.key():
+        changes = getArrayNakedSets(all_arrays_sets_dict[indxs_key])
+        if changes:
+            found_naked = True
+            for change_indx, newset in changes.items():
+                celldict[change_indx] = newset
+                all_arrays_sets_dict[indxs_key][change_indx] = newset
+    if found_naked:
+        return (all_arrays_sets_dict, celldict)
+        
+            
+data_str = file_inpt("tst.py", 'r', encoding='utf8')
 print_data(data_str)
 print('*'*15)
 
 
 while data_str.count('0') > 0:
     data_str = list(data_str)
-    rows = getIntRows(data_str, getIndxsData(data_str))
-    cols = getIntCols(data_str, getIndxsData(data_str))
-    squares = getIntSquares(''.join(data_str), getIndxsData(data_str))
-    all_arrays = {**rows, **cols, **squares}
-    for i in range(len(data_str)):
-        check_sets = []
-        for key in all_arrays.keys():
-            if str(i) in key.split(';') and data_str[i]=='0':
-                check_sets.append(getSetforArray(all_arrays[key]))
-        candidate = {str(e) for e in "123456789"}
-        for st in check_sets:
-            candidate &= st
-        if len(candidate)==1:
-            data_str[i] = ''.join(candidate)
+    ilst = getIndxsData(data_str)
+    rows, cols, squares = getIntRows(data_str, ilst), getIntCols(data_str, ilst), getIntSquares(data_str, ilst)
+    cell_dict = cellsSetDict(getEmptCells(data_str), {**rows, **cols, **squares})
+    data_str = makeDataChanges(data_str, cell_dict)
     print_data(data_str)
     print('*'*15)
