@@ -5,10 +5,10 @@
 # setting up approximity further in (num (- or +) 0.00...01) will fail the while loop as it will encounter its float limitations
 # without a propper math module.. 
 # the main idea behind this is to design a simple algorithm to solve a problem of this type
-# ...no research..pure improvisation for the fun of it
+# ...no research..pure boredom
 
 
-def getSqrt(num, interval=['', ''], div_by=2, increment=1):
+def getSqrt(num, interval=['', ''], div_by=1, increment=1):
     while True:
         res = num / div_by
         if (num - 0.000000001) <= res**2 <= (num + 0.000000001):
@@ -25,14 +25,15 @@ def getSqrt(num, interval=['', ''], div_by=2, increment=1):
             continue
         div_by += increment
 
-for num in (6, 7, 8):
+for num in (6, 7, 8, 1.5):
     print(getSqrt(num))
 print()
 
-# GOOGLE CALC resuls for sqrt of 6; 7; 8
+# GOOGLE CALC resuls for sqrt of 6; 7; 8, 1.5
 # 2.44948974278
 # 2.64575131106
 # 2.82842712475
+# 1.22474487139
 
 # example comparison for the sqrt of 6
 winner = 2.44948974278**2    #google calc result
