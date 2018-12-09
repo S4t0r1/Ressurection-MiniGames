@@ -1,5 +1,5 @@
 
-# this func finds out an approx square root of a number without using any mathematical knowledge nor any math module
+# this func finds out an approx square root of a number without using any special mathematical knowledge nor any math module
 # as you can see at the bottom, it is less accurate than a google calc, thats why a MATH MODULE IN PYTHON IS VERY IMPORTANT !
 
 # setting up approximity further in (num (- or +) 0.00...01) will fail the while loop as it will encounter its float limitations
@@ -41,4 +41,4 @@ winner2 = 2.44948974296**2   #this func result
 winner3 = 2.449489742**2     # the & (=intersection) of decimal points from the above results
 
 for num, candidate in zip([6 for i in range(3)], (winner, winner2, winner3)):
-    print("total diff with num {} -> {}".format(num, (num - candidate if candidate<6 else candidate - num)))
+    print("total diff with num {} -> {}".format(num, (num - candidate if (candidate < num) else candidate - num)))
