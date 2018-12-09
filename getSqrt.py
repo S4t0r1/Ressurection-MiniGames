@@ -4,7 +4,7 @@
 
 # setting up approximity further in (num (- or +) 0.00...01) will fail the while loop as it will encounter its float limitations
 # without a propper math module.. 
-# the main idea behind this is to find a simple algorithm to solve a problem of this type
+# the main idea behind this is to design a simple algorithm to solve a problem of this type
 # ...no research..pure improvisation for the fun of it
 
 
