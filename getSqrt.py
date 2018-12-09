@@ -8,16 +8,11 @@
 # ...no research..pure improvisation for the fun of it
 
 
-
-def getSqrt(num):
-    interval = ['', '']
-    div_by = 2
-    res = num / 2
-    increment = 1
+def getSqrt(num, interval=['', ''], div_by=2, increment=1):
     while True:
         res = num / div_by
         if (num - 0.000000001) <= res**2 <= (num + 0.000000001):
-            break
+            return str(res)[:str(res).index('.')+12]
         else:
             if res**2 > num:
                 interval[0] = div_by
@@ -29,24 +24,20 @@ def getSqrt(num):
             interval = ['', '']
             continue
         div_by += increment
-    return str(res)[:str(res).index('.')+12]
 
+for num in (6, 7, 8):
+    print(getSqrt(num))
+print()
 
-print(getSqrt(6))
-print(getSqrt(7))
-print(getSqrt(8))
+# GOOGLE CALC resuls for sqrt of 6; 7; 8
 # 2.44948974278
 # 2.64575131106
 # 2.82842712475
 
-# example comparison on sqrt of 6, winner=Google calc., winner2=this func, winner3=result with the & decimalpoints of winner, winner2
-winner = 2.44948974278**2 
-winner2 = 2.44948974296**2
-winner3 = 2.449489742**2
-print()
-print(6 - winner if winner<6 else winner - 6)
-print(6 - winner2 if winner2<6 else winner2 - 6)
-print(6 - winner3 if winner3<6 else winner3 - 6)
+# example comparison for the sqrt of 6
+winner = 2.44948974278**2    #google calc result
+winner2 = 2.44948974296**2   #this func result
+winner3 = 2.449489742**2     # the & (=intersection) of decimal points from the above results
 
-
-print("\n{}\n{}\n{}".format(winner, winner2, winner3))
+for num, candidate in zip([6 for i in range(3)], (winner, winner2, winner3)):
+    print("total diff with num {} -> {}".format(num, (num - candidate if candidate<6 else candidate - num)))
