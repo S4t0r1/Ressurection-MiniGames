@@ -8,21 +8,18 @@
 # ...no research..pure boredom
 
 
-def getSqrt(num, interval=['', ''], div_by=1, increment=1):
+def getSqrt(num, div_by=1, increment=1):
+    div_start = None
     while True:
         res = num / div_by
         if (num - 0.000000001) <= res**2 <= (num + 0.000000001):
-            return str(res)[:str(res).index('.')+12]
+            return float(str(res)[:str(res).index('.')+12])
         else:
             if res**2 > num:
-                interval[0] = div_by
-            elif res**2 < num:
-                interval[1] = div_by
-        if all(x!='' for x in interval):
-            increment = increment / 10
-            div_by = interval[0] + increment
-            interval = ['', '']
-            continue
+                div_start = div_by
+            else:
+                increment = increment / 10
+                div_by = div_start
         div_by += increment
 
 for num in (6, 7, 8, 1.5):
