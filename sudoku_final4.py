@@ -154,7 +154,12 @@ def tryPicks(datastr, ilst, picks_array=[], prevtaken=None, setback_cnt=0, empto
     while True:
         changes = makeDataChanges(temp_data, celldict)
         if not changes:
-            indx, set_ = getNxtLenSet(celldict, restricted)
+            try:
+                indx, set_ = getNxtLenSet(celldict, restricted)
+            except TypeError:
+                restricted = []
+                celldict = getCellSetDict(temp_data, ilst)
+                indx, set_ = getNxtLenSet(celldict, restricted)
             if emptout_cnt == 2:
                 restricted.append(indx)
                 emptout_cnt = 0
@@ -183,8 +188,8 @@ def bckTrck(datastr, ilst):
     temp_data = datastr[:]
     picks_array = []
     prevtaken = None
-    restricted = []
     setback_cnt, emptout_cnt = 0, 0
+    restricted = []
     count = 0
     while True:
         result = tryPicks(temp_data, ilst, picks_array, prevtaken, setback_cnt, emptout_cnt, restricted)
@@ -192,7 +197,7 @@ def bckTrck(datastr, ilst):
             return result
         picks_array, prevtaken, setback_cnt, emptout_cnt, restricted = result
         count += 1
-        if count == 500:
+        if count == 1000:
             break
 
 '''
