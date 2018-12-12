@@ -139,10 +139,9 @@ def getNxtCelldict(datastr, ilst, item=None):
 
 def backTrack(datastr, ilst, celldict):
     temp_data = datastr[:]
-    prev_picks, prev_sets, restricted = [], {}, []
+    prev_picks, prev_sets = [], {}
     prev_data = [(datastr, celldict)]
-    indx, set_ = getNxtLenSet(celldict, restricted)
-    restricted.append(indx)
+    indx, set_ = getNxtLenSet(celldict)
     while True:
         picknum = getNumfrSet(prev_picks, indx, set_)
         if type(picknum) == int:
